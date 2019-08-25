@@ -1,0 +1,24 @@
+[package]
+name = "qapi-async"
+version = "0.1.0"
+authors = ["Marc-André Lureau <marcandre.lureau@redhat.com>"]
+edition = "2018"
+keywords = ["qemu", "qmp", "qga", "qapi", "async"]
+
+[dependencies]
+serde = "^1.0.27"
+serde_json = "^1.0.9"
+qapi-spec = { version = "^0.2.2", path = "../spec" }
+futures-preview = { version = "0.3.0-alpha.18", features = [ "async-await", "nightly" ] }
+async-std = "0.99"
+
+log = { version = "^0.4.6", optional = true }
+qapi-qmp = { version = "^0.5.0", path = "../qmp", optional = true }
+qapi-qga = { version = "^0.5.0", path = "../qga", optional = true }
+
+[features]
+qga = ["qapi-qga", "log"]
+qmp = ["qapi-qmp", "log"]
+
+[dev-dependencies]
+env_logger = "^0.6.0"
