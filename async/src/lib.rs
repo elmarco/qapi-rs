@@ -85,12 +85,15 @@ mod stream {
 #[cfg(any(feature = "qmp", feature = "qga"))]
 mod qapi {
     use futures::io::AsyncBufReadExt;
+    use futures::task::{Context, Poll};
     use futures::prelude::*;
     use log::trace;
     use qapi_spec::{self, Command};
     use serde::Deserialize;
     use serde_json;
     use std::io;
+    use core::pin::Pin;
+    use std::marker::PhantomData;
 
     pub struct Qapi<S> {
         pub stream: S,
@@ -120,6 +123,18 @@ mod qapi {
                     .map_err(From::from)
             }
         }
+
+        pub async fn wait_event<'de, D: Deserialize<'de>>(&'de mut self) -> io::Result<D> {
+            match self.decode_line().await? {
+                Some(e) => Ok(e),
+                None => {
+                    Err(io::Error::new(
+                        io::ErrorKind::UnexpectedEof,
+                        "unexpected error while waiting for event",
+                    ))
+                }
+            }
+        }
     }
 
     impl<S: AsyncWrite + Unpin> Qapi<S> {
@@ -141,16 +156,47 @@ mod qapi {
             self.stream.flush().await
         }
     }
+
+    pub struct Events<'a, S, E> {
+        qapi: &'a mut Qapi<S>,
+        event_type: PhantomData<E>,
+    }
+
+    impl<'a, S, E> Events<'a, S, E> {
+        pub fn new(qapi: &'a mut Qapi<S>) -> Self {
+            Self {
+                qapi,
+                event_type: PhantomData,
+            }
+        }
+    }
+
+    impl<'a, S: AsyncBufRead + Unpin, E: Deserialize<'a>> futures::Stream for Events<'a, S, E>
+    {
+        type Item = io::Result<E>;
+
+        fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+            let Self {
+                qapi,
+                ..
+            } = unsafe { self.get_unchecked_mut() };
+            let future = self.qapi.wait_event();
+            // tricky...
+            //pin_utils::pin_mut!(future);
+            //
+            //let e = futures::ready!(future.poll(cx))?;
+            Poll::Ready(None)
+        }
+    }
 }
 
 #[cfg(feature = "qmp")]
 mod qmp_impl {
-    use crate::{qapi::Qapi, Stream};
+    use crate::{qapi::{Qapi, Events}, Stream};
     use futures::io::{AsyncBufRead, AsyncRead, AsyncWrite, BufReader};
     use qapi_qmp::{qmp_capabilities, Event, QapiCapabilities, QmpMessage, QMP};
     use qapi_spec::{Command, Error};
     use std::io;
-    use std::vec::Drain;
 
     pub struct Qmp<S> {
         inner: Qapi<S>,
@@ -223,25 +269,12 @@ mod qmp_impl {
                 .map(|_| caps)
         }
 
-        pub async fn wait_event(&mut self) -> io::Result<()> {
-            match self.inner.decode_line().await? {
-                Some(e) => self.event_queue.push(e),
-                None => {
-                    return Err(io::Error::new(
-                        io::ErrorKind::UnexpectedEof,
-                        "unexpected error while waiting for event",
-                    ))
-                }
-            }
-
-            Ok(())
+        pub async fn wait_event(&mut self) -> io::Result<Event> {
+            self.inner.wait_event().await
         }
 
-        pub async fn events(&mut self) -> io::Result<Drain<'_, Event>> {
-            if self.event_queue.is_empty() {
-                self.wait_event().await?;
-            }
-            Ok(self.event_queue.drain(..))
+        pub fn events(&mut self) -> Events<S, Event> {
+            Events::new(&mut self.inner)
         }
     }
 }
