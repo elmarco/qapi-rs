@@ -50,7 +50,11 @@ fn typename_s(ty: &str) -> String {
 }
 
 fn type_attrs(ty: &spec::Type) -> String {
-    feature_attrs(&ty.features)
+    if ty.features.is_deprecated() {
+        " #[cfg(feature = \"deprecated\")] #[deprecated]".into()
+    } else {
+        String::new()
+    }
 }
 
 fn feature_attrs(ty: &spec::Features) -> String {
@@ -353,6 +357,10 @@ pub struct {} {{
                 let field_ty = typename(&field.ty);
                 let field_name = identifier(&field.name);
                 let into = if field.optional { ".into()" } else { "" };
+                let deprecated_primary = field.ty.features.is_deprecated();
+                if deprecated_primary {
+                    write!(self.out, "\n#[cfg(feature = \"deprecated\")]")?;
+                }
                 write!(self.out, "
 impl<T: Into<{}>> From<T> for {} {{
     fn from(val: T) -> Self {{
@@ -361,7 +369,8 @@ impl<T: Into<{}>> From<T> for {} {{
 ", field_ty, struct_id, field_name, into)?;
                 if newtype.is_none() {
                     for field in &v.data.fields {
-                        writeln!(self.out, "{}: Default::default(),", identifier(&field.name))?;
+                        let cfg = if field.ty.features.is_deprecated() { "#[cfg(feature = \"deprecated\")] " } else { "" };
+                        writeln!(self.out, "{}{}: Default::default(),", cfg, identifier(&field.name))?;
                     }
                 }
                 write!(self.out, "
@@ -369,6 +378,9 @@ impl<T: Into<{}>> From<T> for {} {{
     }}
 }}")?;
                 if !field.optional {
+                    if deprecated_primary {
+                        write!(self.out, "\n#[cfg(feature = \"deprecated\")]")?;
+                    }
                     write!(self.out, "
     impl AsRef<{}> for {} {{
         fn as_ref(&self) -> &{} {{
@@ -380,6 +392,10 @@ impl<T: Into<{}>> From<T> for {} {{
             if let Some(field) = wrapper {
                 let field_ty = typename(&field.ty);
                 let field_name = identifier(&field.name);
+                let deprecated_wrapper = field.ty.features.is_deprecated();
+                if deprecated_wrapper {
+                    write!(self.out, "\n#[cfg(feature = \"deprecated\")]")?;
+                }
                 write!(self.out, "
 impl ::std::ops::Deref for {} {{
     type Target = {};
@@ -388,6 +404,9 @@ impl ::std::ops::Deref for {} {{
         &self.{}
     }}
 }}", struct_id, field_ty, field_name)?;
+                if deprecated_wrapper {
+                    write!(self.out, "\n#[cfg(feature = \"deprecated\")]")?;
+                }
                 write!(self.out, "
 impl {} {{
     pub fn into_inner(self) -> {} {{
