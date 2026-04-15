@@ -68,6 +68,6 @@ impl error::Error for GuestExecStatus {
 
 impl From<GuestExecStatus> for io::Error {
     fn from(s: GuestExecStatus) -> Self {
-        io::Error::new(io::ErrorKind::Other, s.to_string())
+        io::Error::other(s.to_string())
     }
 }
