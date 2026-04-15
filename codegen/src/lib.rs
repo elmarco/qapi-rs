@@ -474,7 +474,7 @@ pub enum {} {{
                     assert!(!variant.ty.is_array);
                 }
 
-                write!(self.out, "\t#[serde(rename = \"{}\")]\n\t{}", variant_name, type_identifier(&variant_name))?;
+                write!(self.out, "\t#[serde(rename = \"{}\")]\n\t{}", variant_name, type_identifier(variant_name))?;
 
                 let field = variant.map(|variant| spec::Value {
                     name: variant_name.to_string().clone(),
