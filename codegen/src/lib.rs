@@ -82,10 +82,9 @@ fn valuety(value: &spec::Value, pubvis: bool, super_name: &str) -> String {
         // `ringbuf-write`, `ringbuf-read`, `SecretProperties` can't be done because weird enums
     );
 
-    let dict = value.ty.name == "any" && (
-        (super_name == "object-add" && value.name == "props") ||
-        (super_name == "CpuModelInfo" && value.name == "props")
-    );
+    let dict = (super_name == "CpuModelInfo" || super_name == "object-add")
+        && value.name == "props"
+        && value.ty.name == "any";
 
     // TODO: handle optional Vec<>s specially?
 
