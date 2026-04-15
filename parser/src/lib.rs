@@ -72,8 +72,8 @@ pub mod spec {
 
     impl Value {
         pub fn new(name: &str, ty: Type) -> Self {
-            let (name, opt) = if name.starts_with("*") {
-                (name[1..].into(), true)
+            let (name, opt) = if let Some(stripped) = name.strip_prefix("*") {
+                (stripped.into(), true)
             } else {
                 (name.into(), false)
             };
