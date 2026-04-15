@@ -189,6 +189,10 @@ pub trait Event: DeserializeOwned {
     const NAME: &'static str;
 }
 
+/// # Safety
+///
+/// Implementors must ensure that `discriminant()` always returns a valid
+/// index into `NAMES` and `VARIANTS` (i.e., less than `COUNT`).
 pub unsafe trait Enum: DeserializeOwned + str::FromStr + Copy + 'static {
     fn discriminant(&self) -> usize;
 
