@@ -7,8 +7,8 @@ use std::{io, str, fmt, error};
 use serde::{Deserialize, Serialize};
 
 pub trait QgaCommand: qapi_spec::Command { }
-impl<'a, T: QgaCommand> QgaCommand for &'a T { }
-impl<'a, T: QgaCommand> QgaCommand for &'a mut T { }
+impl<T: QgaCommand> QgaCommand for &T { }
+impl<T: QgaCommand> QgaCommand for &mut T { }
 
 #[derive(Copy, Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
