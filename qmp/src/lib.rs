@@ -1,4 +1,4 @@
-#![allow(non_snake_case, non_camel_case_types)]
+#![allow(non_snake_case, non_camel_case_types, clippy::large_enum_variant)]
 #![doc(html_root_url = "https://docs.rs/qapi-qmp/0.15.0")]
 #![allow(deprecated)]
 
