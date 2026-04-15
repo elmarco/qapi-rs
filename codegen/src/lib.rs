@@ -517,7 +517,7 @@ impl {} {{
 ", type_identifier(&u.id), identifier(discrim), type_identifier(&discrim_ty.name))?;
             for &(variant_name, _) in &variants {
                 writeln!(self.out, "
-            {}::{} {{ .. }} => {}::{},", type_identifier(&u.id), type_identifier(&variant_name), type_identifier(&discrim_ty.name), type_identifier(&variant_name))?;
+            {}::{} {{ .. }} => {}::{},", type_identifier(&u.id), type_identifier(variant_name), type_identifier(&discrim_ty.name), type_identifier(variant_name))?;
             }
             writeln!(self.out, "
         }}
