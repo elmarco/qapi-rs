@@ -8,7 +8,7 @@ use std::collections::{BTreeMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::fs::File;
 use std::io::{self, Write};
-use std::mem::replace;
+use std::mem::take;
 
 // kebab-case to PascalCase?
 fn type_identifier<S: AsRef<str>>(id: S) -> String {
@@ -320,7 +320,7 @@ pub enum {} {{
     fn process_structs(&mut self) -> io::Result<()> {
         for (id, discrim) in &self.struct_discriminators {
             let ty = self.types.get_mut(id).ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, format!("could not find qapi type {}", id)))?;
-            let fields = replace(&mut ty.data.fields, Vec::new());
+            let fields = take(&mut ty.data.fields);
             ty.data.fields = fields.into_iter().filter(|base| &base.name != discrim).collect();
         }
 
