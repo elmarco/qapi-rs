@@ -171,14 +171,14 @@ pub trait Command: Serialize + Sync + Send {
     const ALLOW_OOB: bool;
 }
 
-impl<'a, C: Command> Command for &'a C {
+impl<C: Command> Command for &C {
     type Ok = C::Ok;
 
     const NAME: &'static str = C::NAME;
     const ALLOW_OOB: bool = C::ALLOW_OOB;
 }
 
-impl<'a, C: Command> Command for &'a mut C {
+impl<C: Command> Command for &mut C {
     type Ok = C::Ok;
 
     const NAME: &'static str = C::NAME;
