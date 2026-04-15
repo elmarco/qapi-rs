@@ -488,7 +488,7 @@ pub enum {} {{
                             if base.name == "base" { "#[serde(flatten)] " } else { "" },
                             valuety(base, false, &u.id)
                         )?;
-                        writeln!(self.out, "\t\t#[serde(flatten)] {},", valuety(&field, false, &u.id))?;
+                        writeln!(self.out, "\t\t#[serde(flatten)] {},", valuety(field, false, &u.id))?;
                         writeln!(self.out, "\t}},")?;
                     },
                     (Some(field), None) | (None, Some(field)) =>
