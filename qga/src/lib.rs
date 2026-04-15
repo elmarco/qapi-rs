@@ -49,7 +49,7 @@ impl GuestExecStatus {
         } else if self.exited {
             format!("guest process exited{}{}{}", sig, err0, err1)
         } else {
-            format!("guest process is still running")
+            "guest process is still running".to_string()
         }
     }
 }
