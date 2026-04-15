@@ -281,20 +281,20 @@ pub struct QapiEvents<S> {
 }
 
 impl<S> QapiEvents<S> {
-    pub fn release(&self) -> Result<(), ()> {
+    pub fn release(&self) -> bool {
         let commands = self.shared.commands.lock().unwrap();
         if commands.abandoned {
-            Err(())
+            false
         } else {
             self.shared.abandoned.store(true, Ordering::Relaxed);
-            Ok(())
+            true
         }
     }
 
     pub async fn into_future(self) -> () where
         Self: Future<Output=io::Result<()>>,
     {
-        if self.release().is_err() {
+        if !self.release() {
             info!("QAPI service abandoned before spawning");
             return
         }
