@@ -216,11 +216,7 @@ pub enum {} {{
 ", type_identifier(&v.id))?;
                 for data in &v.data.fields {
                     assert!(!data.optional);
-                    let boxed = if data.name == "definition" && data.ty.name == "BlockdevOptions" {
-                        true
-                    } else {
-                        false
-                    };
+                    let boxed = data.name == "definition" && data.ty.name == "BlockdevOptions";
                     let ty = if boxed {
                         format!("Box<{}>", typename(&data.ty))
                     } else {
