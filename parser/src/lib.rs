@@ -39,7 +39,7 @@ pub mod spec {
         }
 
         pub fn newtype(&self) -> Option<&Value> {
-            match self.fields.get(0) {
+            match self.fields.first() {
                 Some(data) if self.fields.len() == 1 => Some(data),
                 _ => None,
             }
