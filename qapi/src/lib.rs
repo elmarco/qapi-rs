@@ -331,7 +331,7 @@ mod qga_impl {
             match self.execute(&sync) {
                 Ok(r) if r == sync.id => Ok(()),
                 Ok(..) => Err(io::Error::new(io::ErrorKind::InvalidData, "guest-sync handshake failed").into()),
-                Err(e) => Err(e.into()),
+                Err(e) => Err(e),
             }
         }
     }
