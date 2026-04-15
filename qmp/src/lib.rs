@@ -55,10 +55,7 @@ pub struct QapiCapabilities {
 
 impl QapiCapabilities {
     pub fn supports_oob(&self) -> bool {
-        self.QMP.capabilities.iter().any(|c| match c {
-            QmpCapability::OutOfBand => true,
-            _ => false,
-        })
+        self.QMP.capabilities.iter().any(|c| matches!(c, QmpCapability::OutOfBand))
     }
 
     pub fn capabilities<'a>(&'a self) -> impl Iterator<Item=QMPCapability> + 'a {
