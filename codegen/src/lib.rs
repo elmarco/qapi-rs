@@ -166,7 +166,7 @@ pub struct {}", feature_attrs(&v.features), type_id)?;
                             spec::DataOrType::Data(ref data) => {
                                 writeln!(self.out, " {{")?;
                                 for data in &data.fields {
-                                    writeln!(self.out, "\t{},", valuety(&data, true, &v.id))?;
+                                    writeln!(self.out, "\t{},", valuety(data, true, &v.id))?;
                                 }
                                 if !v.gen {
                                     writeln!(self.out, "
