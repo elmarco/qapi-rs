@@ -505,7 +505,7 @@ pub enum {} {{
 pub struct {} {{
 ", base.as_ref().unwrap().ty.name)?;
                 for field in base_fields.clone() {
-                    writeln!(self.out, "\t{},", valuety(&field, true, &u.id))?;
+                    writeln!(self.out, "\t{},", valuety(field, true, &u.id))?;
                 }
                 writeln!(self.out, "}}")?;
             }
