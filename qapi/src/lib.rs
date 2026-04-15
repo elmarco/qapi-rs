@@ -304,12 +304,10 @@ mod qga_impl {
 
     impl<S: BufRead> Qga<S> {
         pub fn read_response<C: Command>(&mut self) -> ExecuteResult<C> {
-            loop {
-                match self.inner.decode_line()?.map(|r: Response<_>| r.result()) {
-                    None => return Err(io::Error::new(io::ErrorKind::UnexpectedEof, "expected command response").into()),
-                    Some(Ok(res)) => return Ok(res),
-                    Some(Err(e)) => return Err(e.into()),
-                }
+            match self.inner.decode_line()?.map(|r: Response<_>| r.result()) {
+                None => Err(io::Error::new(io::ErrorKind::UnexpectedEof, "expected command response").into()),
+                Some(Ok(res)) => Ok(res),
+                Some(Err(e)) => Err(e.into()),
             }
         }
     }
