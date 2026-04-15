@@ -385,15 +385,15 @@ pub mod spec {
     impl DataOrType {
         pub fn is_empty(&self) -> bool {
             match self {
-                &DataOrType::Data(ref data) => data.fields.is_empty(),
-                &DataOrType::Type(..) => false,
+                DataOrType::Data(data) => data.fields.is_empty(),
+                DataOrType::Type(..) => false,
             }
         }
 
         pub fn len(&self) -> usize {
             match self {
-                &DataOrType::Data(ref data) => data.fields.len(),
-                &DataOrType::Type(..) => 1,
+                DataOrType::Data(data) => data.fields.len(),
+                DataOrType::Type(..) => 1,
             }
         }
     }
