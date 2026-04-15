@@ -111,7 +111,7 @@ mod qapi {
                 command.serialize(&mut ser)?;
             }
 
-            self.stream.write(&[b'\n'])?;
+            self.stream.write_all(b"\n")?;
 
             self.stream.flush()
         }
