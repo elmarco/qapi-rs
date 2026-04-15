@@ -70,7 +70,6 @@ impl From<ExecuteError> for io::Error {
 
 #[cfg(any(feature = "qapi-qmp", feature = "qapi-qga"))]
 mod qapi {
-    use serde_json;
     use serde::{Serialize, Deserialize};
     use std::io::{self, BufRead, Write};
     use crate::{Command, Execute};
