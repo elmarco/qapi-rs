@@ -515,9 +515,11 @@ impl {} {{
     pub fn {}(&self) -> {} {{
         match *self {{
 ", type_identifier(&u.id), identifier(discrim), type_identifier(&discrim_ty.name))?;
-            for &(variant_name, _) in &variants {
+            for &(variant_name, variant) in &variants {
+                let has_fields = variant.is_some() || base.is_some();
+                let pattern = if has_fields { " { .. }" } else { "" };
                 writeln!(self.out, "
-            {}::{} {{ .. }} => {}::{},", type_identifier(&u.id), type_identifier(variant_name), type_identifier(&discrim_ty.name), type_identifier(variant_name))?;
+            {}::{}{} => {}::{},", type_identifier(&u.id), type_identifier(variant_name), pattern, type_identifier(&discrim_ty.name), type_identifier(variant_name))?;
             }
             writeln!(self.out, "
         }}
